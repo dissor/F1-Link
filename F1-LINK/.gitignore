@@ -1,0 +1,6 @@
+MDK-ARM/*
+!MDK-ARM/DebugConfig
+!MDK-ARM/RTE
+!MDK-ARM/F1-LINK.uvprojx
+!MDK-ARM/startup_stm32f103xb.lst
+!MDK-ARM/startup_stm32f103xb.s
