@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "dma.h"
 #include "rtc.h"
 #include "usart.h"
@@ -59,6 +60,15 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+RTC_DateTypeDef sdatestructure;
+RTC_TimeTypeDef stimestructure;
+
+#define AVMAX 10
+struct
+{
+  uint16_t temp;
+  uint16_t vref;
+} AdcValue[AVMAX];
 
 /* USER CODE END 0 */
 
@@ -94,10 +104,10 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USB_DEVICE_Init();
   MX_RTC_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-	RTC_DateTypeDef sdatestructure;
-	RTC_TimeTypeDef stimestructure;
-
+  HAL_ADCEx_Calibration_Start(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&AdcValue, sizeof(AdcValue) / sizeof(uint16_t));
 
   /* USER CODE END 2 */
 
@@ -105,16 +115,30 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		HAL_RTC_GetTime(&hrtc, &stimestructure, RTC_FORMAT_BIN);
+    HAL_RTC_GetTime(&hrtc, &stimestructure, RTC_FORMAT_BIN);
     HAL_RTC_GetDate(&hrtc, &sdatestructure, RTC_FORMAT_BIN);
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		printf("%02d/%02d/%02d\r\n",2000 + sdatestructure.Year, sdatestructure.Month, sdatestructure.Date);
-    printf("%02d:%02d:%02d\r\n",stimestructure.Hours, stimestructure.Minutes, stimestructure.Seconds);
+    printf("%02d/%02d/%02d\r\n", 2000 + sdatestructure.Year, sdatestructure.Month, sdatestructure.Date);
+    printf("%02d:%02d:%02d\r\n", stimestructure.Hours, stimestructure.Minutes, stimestructure.Seconds);
 
-		HAL_Delay(1000);
+    int32_t temp = 0.0, vref = 0.0;
+    for (uint8_t i = 0; i < AVMAX; i++)
+    {
+      temp += AdcValue[i].temp;
+      vref += AdcValue[i].vref;
+    }
+    temp /= AVMAX;
+    vref /= AVMAX;
+
+    printf("MCU Temperature : %.5f\r\n", ((temp * 3300.0 / 4096 - 1410) / 4.2 + 25));
+    printf("Vrefint value = %1.3fV \r\n", vref * 3.3f / 4096);
+
+    HAL_GPIO_TogglePin(LED_TSF_GPIO_Port, LED_TSF_Pin);
+
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
@@ -157,8 +181,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USB;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC
+                              |RCC_PERIPHCLK_USB;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
