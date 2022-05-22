@@ -1,5 +1,6 @@
 #include "tx_api.h"
 #include <stdio.h>
+#include <stdarg.h>
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
@@ -27,6 +28,27 @@ RTC_TimeTypeDef stimestructure;
 
 extern void SystemClock_Config(void);
 
+// log print function
+static TX_MUTEX logMut;
+
+uint32_t LOG_Init(void)
+{
+	return tx_mutex_create(&logMut, "logMut", TX_NO_INHERIT);
+}
+
+int32_t LOG(const char *sFormat, ...)
+{
+  int32_t r;
+  va_list ParamList;
+
+  va_start(ParamList, sFormat);
+  tx_mutex_get(&logMut, TX_WAIT_FOREVER);
+  r = vprintf(sFormat, ParamList);
+  tx_mutex_put(&logMut);
+  va_end(ParamList);
+
+  return r;
+}
 
 int main()
 {
@@ -44,6 +66,8 @@ void tx_application_define(void *first_unused_memory)
 {
 
   CHAR *pointer = TX_NULL;
+
+	LOG_Init();
 
   /* Create a byte memory pool from which to allocate the thread stacks.  */
   tx_byte_pool_create(&byte_pool_0, "byte pool 0", memory_area, DEMO_BYTE_POOL_SIZE);
@@ -83,8 +107,8 @@ void thread_0_entry(ULONG thread_input)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    printf("%02d/%02d/%02d\r\n", 2000 + sdatestructure.Year, sdatestructure.Month, sdatestructure.Date);
-    printf("%02d:%02d:%02d\r\n", stimestructure.Hours, stimestructure.Minutes, stimestructure.Seconds);
+    LOG("%02d/%02d/%02d\r\n", 2000 + sdatestructure.Year, sdatestructure.Month, sdatestructure.Date);
+    LOG("%02d:%02d:%02d\r\n", stimestructure.Hours, stimestructure.Minutes, stimestructure.Seconds);
 
     int32_t temp = 0.0, vref = 0.0;
     for (uint8_t i = 0; i < AVMAX; i++)
@@ -95,8 +119,8 @@ void thread_0_entry(ULONG thread_input)
     temp /= AVMAX;
     vref /= AVMAX;
 
-    printf("MCU Temperature : %.5f\r\n", ((temp * 3300.0 / 4096 - 1410) / 4.2 + 25));
-    printf("Vrefint value = %1.3fV \r\n", vref * 3.3f / 4096);
+    LOG("MCU Temperature : %.5f\r\n", ((temp * 3300.0 / 4096 - 1410) / 4.2 + 25));
+    LOG("Vrefint value = %1.3fV \r\n", vref * 3.3f / 4096);
 
     HAL_GPIO_TogglePin(LED_TSF_GPIO_Port, LED_TSF_Pin);
 
