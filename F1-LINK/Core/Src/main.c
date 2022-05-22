@@ -28,8 +28,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SEGGER_RTT.h"
-#include <stdio.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,15 +59,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-RTC_DateTypeDef sdatestructure;
-RTC_TimeTypeDef stimestructure;
-
-#define AVMAX 10
-struct
-{
-  uint16_t temp;
-  uint16_t vref;
-} AdcValue[AVMAX];
 
 /* USER CODE END 0 */
 
@@ -76,72 +66,6 @@ struct
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
-  SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_USART1_UART_Init();
-  MX_USB_DEVICE_Init();
-  MX_RTC_Init();
-  MX_ADC1_Init();
-  /* USER CODE BEGIN 2 */
-  HAL_ADCEx_Calibration_Start(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&AdcValue, sizeof(AdcValue) / sizeof(uint16_t));
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    HAL_RTC_GetTime(&hrtc, &stimestructure, RTC_FORMAT_BIN);
-    HAL_RTC_GetDate(&hrtc, &sdatestructure, RTC_FORMAT_BIN);
-
-    /* USER CODE END WHILE */
-
-    /* USER CODE BEGIN 3 */
-    printf("%02d/%02d/%02d\r\n", 2000 + sdatestructure.Year, sdatestructure.Month, sdatestructure.Date);
-    printf("%02d:%02d:%02d\r\n", stimestructure.Hours, stimestructure.Minutes, stimestructure.Seconds);
-
-    int32_t temp = 0.0, vref = 0.0;
-    for (uint8_t i = 0; i < AVMAX; i++)
-    {
-      temp += AdcValue[i].temp;
-      vref += AdcValue[i].vref;
-    }
-    temp /= AVMAX;
-    vref /= AVMAX;
-
-    printf("MCU Temperature : %.5f\r\n", ((temp * 3300.0 / 4096 - 1410) / 4.2 + 25));
-    printf("Vrefint value = %1.3fV \r\n", vref * 3.3f / 4096);
-
-    HAL_GPIO_TogglePin(LED_TSF_GPIO_Port, LED_TSF_Pin);
-
-    HAL_Delay(1000);
-  }
-  /* USER CODE END 3 */
-}
 
 /**
   * @brief System Clock Configuration
@@ -193,11 +117,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-int fputc(int ch, FILE *f)
-{
-	SEGGER_RTT_PutChar(0, ch);
-	return ch;
-}
+
 /* USER CODE END 4 */
 
 /**

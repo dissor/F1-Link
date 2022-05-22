@@ -24,68 +24,15 @@
     IMPORT  _tx_thread_system_stack_ptr
     IMPORT  _tx_initialize_unused_memory
     IMPORT  _tx_timer_interrupt
-    IMPORT  __main
-    IMPORT  |Image$$RO$$Limit|
-    IMPORT  |Image$$RW$$Base|
-    IMPORT  |Image$$ZI$$Base|
-    IMPORT  |Image$$ZI$$Limit|
-    IMPORT  __tx_PendSVHandler
+    IMPORT  __initial_sp
+    IMPORT  __Vectors
 ;
 ;
-SYSTEM_CLOCK        EQU     6000000
-SYSTICK_CYCLES      EQU     ((SYSTEM_CLOCK / 100) -1)
-;
-;
-;/* Setup the stack and heap areas.  */
-;
-STACK_SIZE          EQU     0x00000400
-HEAP_SIZE           EQU     0x00000000
-
-    AREA    STACK, NOINIT, READWRITE, ALIGN=3
-StackMem
-    SPACE   STACK_SIZE
-__initial_sp
+SYSTEM_CLOCK        EQU     72000000
+SYSTICK_CYCLES      EQU     ((SYSTEM_CLOCK / 1000) -1)
 
 
-    AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-HeapMem
-    SPACE   HEAP_SIZE
-__heap_limit
-
-
-    AREA    RESET, CODE, READONLY
-;
-    EXPORT  __tx_vectors
-__tx_vectors
-    DCD     __initial_sp                            ; Reset and system stack ptr
-    DCD     Reset_Handler                           ; Reset goes to startup function
-    DCD     __tx_NMIHandler                         ; NMI
-    DCD     __tx_BadHandler                         ; HardFault
-    DCD     0                                       ; MemManage
-    DCD     0                                       ; BusFault
-    DCD     0                                       ; UsageFault
-    DCD     0                                       ; 7
-    DCD     0                                       ; 8
-    DCD     0                                       ; 9
-    DCD     0                                       ; 10
-    DCD     __tx_SVCallHandler                      ; SVCall
-    DCD     __tx_DBGHandler                         ; Monitor
-    DCD     0                                       ; 13
-    DCD     __tx_PendSVHandler                      ; PendSV
-    DCD     __tx_SysTickHandler                     ; SysTick
-    DCD     __tx_IntHandler                         ; Int 0
-    DCD     __tx_IntHandler                         ; Int 1
-    DCD     __tx_IntHandler                         ; Int 2
-    DCD     __tx_IntHandler                         ; Int 3
-;
-;
     AREA ||.text||, CODE, READONLY
-    EXPORT  Reset_Handler
-Reset_Handler
-    CPSID   i
-    LDR     R0, =__main
-    BX      R0
 
 
 ;/**************************************************************************/
@@ -141,14 +88,14 @@ _tx_initialize_low_level
 ;    /* Set base of available memory to end of non-initialised RAM area.  */
 ;
     LDR     r0, =_tx_initialize_unused_memory   ; Build address of unused memory pointer
-    LDR     r1, =|Image$$ZI$$Limit|             ; Build first free address
+    LDR     r1, =__initial_sp                   ; Build first free address
     ADD     r1, r1, #4                          ;
     STR     r1, [r0]                            ; Setup first unused memory pointer
 ;
 ;    /* Setup Vector Table Offset Register.  */
 ;
     MOV     r0, #0xE000E000                     ; Build address of NVIC registers
-    LDR     r1, =__tx_vectors                   ; Pickup address of vector table
+    LDR     r1, =__Vectors                      ; Pickup address of vector table
     STR     r1, [r0, #0xD08]                    ; Set vector table address
 ;
 ;    /* Enable the cycle count register.  */
@@ -161,7 +108,7 @@ _tx_initialize_low_level
 ;    /* Set system stack pointer from vector value.  */
 ;
     LDR     r0, =_tx_thread_system_stack_ptr    ; Build address of system stack pointer
-    LDR     r1, =__tx_vectors                   ; Pickup address of vector table
+    LDR     r1, =__Vectors                      ; Pickup address of vector table
     LDR     r1, [r1]                            ; Pickup reset stack pointer
     STR     r1, [r0]                            ; Save system stack pointer
 ;
@@ -190,63 +137,15 @@ _tx_initialize_low_level
 ;
     BX      lr
 ;}
-;
-;
-;/* Define initial heap/stack routine for the ARM RVCT startup code.
-;   This routine will set the initial stack and heap locations */
-;
-    EXPORT  __user_initial_stackheap
-__user_initial_stackheap
-    LDR     R0, =HeapMem
-    LDR     R1, =(StackMem + STACK_SIZE)
-    LDR     R2, =(HeapMem + HEAP_SIZE)
-    LDR     R3, =StackMem
-    BX      LR
-;
-;
-;/* Define shells for each of the unused vectors.  */
-;
-    EXPORT  __tx_BadHandler
-__tx_BadHandler
-    B   __tx_BadHandler
 
 
-    EXPORT  __tx_SVCallHandler
-__tx_SVCallHandler
-    B       __tx_SVCallHandler
-
-
-    EXPORT  __tx_IntHandler
-__tx_IntHandler
-; VOID InterruptHandler (VOID)
-; {
-    PUSH    {r0, lr}
-
-;    /* Do interrupt handler work here */
-;    /* .... */
-
-    POP     {r0, lr}
-    BX      LR
-; }
-
-    EXPORT  __tx_SysTickHandler
-__tx_SysTickHandler
-; VOID TimerInterruptHandler (VOID)
-; {
-;
+    EXPORT  SysTick_Handler
+SysTick_Handler
     PUSH    {r0, lr}
     BL      _tx_timer_interrupt
     POP     {r0, lr}
     BX      LR
-; }
 
-    EXPORT  __tx_NMIHandler
-__tx_NMIHandler
-    B       __tx_NMIHandler
-
-    EXPORT  __tx_DBGHandler
-__tx_DBGHandler
-    B       __tx_DBGHandler
 
     ALIGN
     LTORG

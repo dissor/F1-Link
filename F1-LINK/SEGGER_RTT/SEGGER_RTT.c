@@ -75,7 +75,7 @@ Additional information:
 */
 
 #include "SEGGER_RTT.h"
-
+#include <stdio.h>
 #include <string.h> // for memcpy
 
 /*********************************************************************
@@ -2379,4 +2379,9 @@ unsigned SEGGER_RTT_GetBytesInBuffer(unsigned BufferIndex)
     return r;
 }
 
+int fputc(int ch, FILE *f)
+{
+  SEGGER_RTT_PutChar(0, ch);
+  return ch;
+}
 /*************************** End of file ****************************/
