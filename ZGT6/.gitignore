@@ -1,0 +1,4 @@
+MDK-ARM/*
+!MDK-ARM/ZGT6.uvoptx
+!MDK-ARM/ZGT6.uvprojx
+!MDK-ARM/startup_stm32f103xe.s
