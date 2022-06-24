@@ -1,8 +1,9 @@
-# ZGT6
+# E1-LINK
 
-- 144Pin 
+- 144Pin
 - Flash：512 kB
-- RAM：64 kB
+- RAM：128 kB
+- 120MHz
 
 
 
