@@ -1,6 +1,4 @@
 #include "mylk_mco.h"
-#include "apm32e10x_gpio.h"
-#include "apm32e10x_rcm.h"
 
 /** Configure pins as
      PA8   ------> RCC_MCO

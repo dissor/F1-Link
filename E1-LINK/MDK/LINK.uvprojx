@@ -385,6 +385,11 @@
           <GroupName>Drivers/Board</GroupName>
           <Files>
             <File>
+              <FileName>mylk_board.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Board\mylk_board.h</FilePath>
+            </File>
+            <File>
               <FileName>apm32e10x_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Board\apm32e10x_it.c</FilePath>
@@ -403,6 +408,11 @@
               <FileName>mylk_mco.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Board\mylk_mco.c</FilePath>
+            </File>
+            <File>
+              <FileName>mylk_TimeBase.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Board\mylk_TimeBase.c</FilePath>
             </File>
           </Files>
         </Group>
