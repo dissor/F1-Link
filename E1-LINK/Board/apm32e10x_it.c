@@ -120,9 +120,9 @@ void DebugMon_Handler(void)
  *
  */
 
-void PendSV_Handler(void)
-{
-}
+//void PendSV_Handler(void)
+//{
+//}
 
 /*!
  * @brief   This function handles SysTick Handler 
@@ -132,8 +132,8 @@ void PendSV_Handler(void)
  * @retval  None
  *
  */
-void SysTick_Handler(void)
-{
-  extern uint32_t tick;
-  tick++;
-}
+//void SysTick_Handler(void)
+//{
+//  extern uint32_t tick;
+//  tick++;
+//}
