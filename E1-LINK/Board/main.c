@@ -3,6 +3,7 @@
 #include "mylk_log.h"
 #include "mylk_mco.h"
 #include "mylk_TimeBase.h"
+#include "mylk_led.h"
 
 #define DEMO_STACK_SIZE 1024
 #define DEMO_BYTE_POOL_SIZE 2048
@@ -28,7 +29,7 @@ void tx_application_define(void *first_unused_memory)
 
   CHAR *pointer = TX_NULL;
 
-	LOG_Init();
+  LOG_Init();
 
   /* Create a byte memory pool from which to allocate the thread stacks.  */
   tx_byte_pool_create(&byte_pool_0, "byte pool 0", memory_area, DEMO_BYTE_POOL_SIZE);
@@ -59,6 +60,7 @@ void thread_0_entry(ULONG thread_input)
 //  HAL_ADCEx_Calibration_Start(&hadc1);
 //  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&AdcValue, sizeof(AdcValue) / sizeof(uint16_t));
   MYLK_MCO_GPIO_Init();
+  MYLK_LED_GPIO_Init();
   TimeBase_InitTick();
 
   /* This thread simply sits in while-forever-sleep loop.  */
@@ -87,9 +89,12 @@ void thread_0_entry(ULONG thread_input)
 
 //    HAL_GPIO_TogglePin(LED_TSF_GPIO_Port, LED_TSF_Pin);
     printf("hello threadx\r\n");
+    GPIO_WriteBitValue(GPIOE, GPIO_PIN_5, BIT_SET);
 
     /* Sleep for 10 ticks.  */
 //    tx_thread_sleep(1000);
-MYLK_Delay(1000);
+    MYLK_Delay(500);
+    GPIO_WriteBitValue(GPIOE, GPIO_PIN_5, BIT_RESET);
+    MYLK_Delay(500);
   }
 }
