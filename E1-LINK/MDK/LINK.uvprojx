@@ -394,6 +394,16 @@
               <FileType>1</FileType>
               <FilePath>..\Board\main.c</FilePath>
             </File>
+            <File>
+              <FileName>mylk_log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Board\mylk_log.c</FilePath>
+            </File>
+            <File>
+              <FileName>mylk_mco.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Board\mylk_mco.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1530,6 +1540,27 @@
               <FilePath>..\..\BSP\ThreadX\ports\src\tx_timer_interrupt.s</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>DAPLINK/settings</GroupName>
+        </Group>
+        <Group>
+          <GroupName>DAPLINK/target</GroupName>
+        </Group>
+        <Group>
+          <GroupName>DAPLINK/usb</GroupName>
+        </Group>
+        <Group>
+          <GroupName>DAPLINK/rtos</GroupName>
+        </Group>
+        <Group>
+          <GroupName>DAPLINK/hic</GroupName>
+        </Group>
+        <Group>
+          <GroupName>DAPLINK/drag-n-drop</GroupName>
+        </Group>
+        <Group>
+          <GroupName>DAPLINK/dap</GroupName>
         </Group>
       </Groups>
     </Target>

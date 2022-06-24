@@ -1,13 +1,7 @@
 #include "tx_api.h"
-#include <stdio.h>
-#include <stdarg.h>
 #include "main.h"
-//#include "adc.h"
-//#include "dma.h"
-//#include "rtc.h"
-//#include "usart.h"
-//#include "usb_device.h"
-//#include "gpio.h"
+#include "mylk_log.h"
+#include "mylk_mco.h"
 
 #define DEMO_STACK_SIZE 1024
 #define DEMO_BYTE_POOL_SIZE 2048
@@ -15,40 +9,6 @@
 TX_THREAD thread_0;
 TX_BYTE_POOL byte_pool_0;
 UCHAR memory_area[DEMO_BYTE_POOL_SIZE];
-
-//#define AVMAX 10
-//struct
-//{
-//  uint16_t temp;
-//  uint16_t vref;
-//} AdcValue[AVMAX];
-//UINT status;
-//RTC_DateTypeDef sdatestructure;
-//RTC_TimeTypeDef stimestructure;
-
-//extern void SystemClock_Config(void);
-
-// log print function
-static TX_MUTEX logMut;
-
-uint32_t LOG_Init(void)
-{
-	return tx_mutex_create(&logMut, "logMut", TX_NO_INHERIT);
-}
-
-int32_t LOG(const char *sFormat, ...)
-{
-  int32_t r;
-  va_list ParamList;
-
-  va_start(ParamList, sFormat);
-  tx_mutex_get(&logMut, TX_WAIT_FOREVER);
-  r = vprintf(sFormat, ParamList);
-  tx_mutex_put(&logMut);
-  va_end(ParamList);
-
-  return r;
-}
 
 int main()
 {
@@ -97,6 +57,7 @@ void thread_0_entry(ULONG thread_input)
 //  MX_ADC1_Init();
 //  HAL_ADCEx_Calibration_Start(&hadc1);
 //  HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&AdcValue, sizeof(AdcValue) / sizeof(uint16_t));
+  MYLK_MCO_GPIO_Init();
 
   /* This thread simply sits in while-forever-sleep loop.  */
   while (1)
